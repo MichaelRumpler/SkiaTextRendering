@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SkiaTextRendering.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:views="using:SkiaTextRendering.Views"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="SkiaTextRendering.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Skia Text Rendering">
+
+    <Design.DataContext>
+        <vm:MainViewModel/>
+    </Design.DataContext>
+
+	<SplitView DisplayMode="Inline" IsPaneOpen="True" OpenPaneLength="400">
+		<SplitView.Pane>
+			<ScrollViewer>
+				<views:ConnectPanel Margin="0, 0, 10, 0" />
+			</ScrollViewer>
+		</SplitView.Pane>
+
+		<ScrollViewer>
+			<views:TextInfo
+				Text="{Binding Text}"
+				FontFamily="{Binding FontFamily.Name}"
+				FontSize="{Binding FontSize}"
+				ShowTopLine="{Binding ShowTopLine}"
+				ShowMeasuredAscentLine="{Binding ShowMeasuredAscentLine}"
+				ShowAscentLine="{Binding ShowAscentLine}"
+				ShowBaseLine="{Binding ShowBaseLine}"
+				ShowDescentLine="{Binding ShowDescentLine}"
+				ShowBottomLine="{Binding ShowBottomLine}"
+				/>
+		</ScrollViewer>
+	</SplitView>
+
+</Window>

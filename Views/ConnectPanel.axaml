@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:SkiaTextRendering.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SkiaTextRendering.Views.ConnectPanel"
+			 x:DataType="vm:MainViewModel">
+
+	<StackPanel Margin="10, 10, 10, 20" Spacing="10">
+	
+		<Label Target="InputText">Text:</Label>
+		<TextBox x:Name="InputText" Text="{Binding Text}" />
+		
+		<Label Target="InputFontFamily">Font Family:</Label>
+		<ComboBox x:Name="InputFontFamily" ItemsSource="{Binding FontFamilies}"
+					SelectedValue="{Binding FontFamily}">
+			<ComboBox.ItemTemplate>
+				<DataTemplate x:DataType="FontFamily">
+					<TextBlock Text="{Binding Name}" FontFamily="{Binding}" />
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
+
+		<StackPanel Orientation="Horizontal">
+			<Label Target="InputFontSize">Font Size:</Label>
+			<TextBlock Text="{Binding FontSize}" />
+		</StackPanel>
+		<!--<NumericUpDown x:Name="InputFontSize" Value="{Binding FontSize}" Minimum="8" Maximum="30" FormatString="0" />-->
+		<Slider x:Name="InputFontSize" Value="{Binding FontSize}" Minimum="20" Maximum="250" />
+
+		<CheckBox IsChecked="{Binding ShowTopLine}">
+			Show Top Line
+		</CheckBox>
+
+		<CheckBox IsChecked="{Binding ShowMeasuredAscentLine}">
+			Show Measured Ascent Line
+		</CheckBox>
+
+		<CheckBox IsChecked="{Binding ShowAscentLine}">
+			Show Ascent Line
+		</CheckBox>
+
+		<CheckBox IsChecked="{Binding ShowBaseLine}">
+			Show Base Line
+		</CheckBox>
+
+		<CheckBox IsChecked="{Binding ShowDescentLine}">
+			Show Descent Line
+		</CheckBox>
+
+		<CheckBox IsChecked="{Binding ShowBottomLine}">
+			Show Bottom Line
+		</CheckBox>
+
+	</StackPanel>
+
+</UserControl>
