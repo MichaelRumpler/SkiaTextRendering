@@ -220,7 +220,13 @@ public class TextInfo : Control
 	private SKFont headerFont = SKTypeface.Default.ToFont(20);
 	private SKFont captionFont = SKTypeface.Default.ToFont(14);
 
-	private SKColor GetFontColor(SKFont font)
+
+    public TextInfo()
+    {
+		Extensions.CanvasExtensions.SetShaperCacheDuration(30_000);
+	}
+
+    private SKColor GetFontColor(SKFont font)
 	{
 		if(fontColors.TryGetValue(font.Typeface.FamilyName, out SKColor color))
 			return color;
@@ -368,7 +374,7 @@ public class TextInfo : Control
 		}
 
 		if (useHarfBuzz)
-			canvas.DrawShapedText(text, x, y - fontInfo.Ascent, font, foreground);          // HarfBuzz
+			Extensions.CanvasExtensions.DrawShapedText(canvas, text, x, y - fontInfo.Ascent, font, foreground);          // HarfBuzz
 		else
 			canvas.DrawText(text, x, y - fontInfo.Ascent, font, foreground);                // Skia
 
