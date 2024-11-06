@@ -28,5 +28,6 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="SkiaSharp" Version="3.0.0-preview.4.1" />
     <PackageReference Include="SkiaSharp.HarfBuzz" Version="3.0.0-preview.4.1" />
+    <PackageReference Include="System.Runtime.Caching" Version="9.0.0-rc.2.24473.5" />
   </ItemGroup>
 </Project>

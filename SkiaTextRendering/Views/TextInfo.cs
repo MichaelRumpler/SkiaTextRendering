@@ -223,7 +223,8 @@ public class TextInfo : Control
 
     public TextInfo()
     {
-		Extensions.CanvasExtensions.SetShaperCacheDuration(30_000);
+		Extensions.CanvasExtensionsConcurrentDict.SetShaperCacheDuration(30_000);
+		Extensions.CanvasExtensionsRuntimeCache.SetShaperCacheDuration(30_000);
 	}
 
     private SKColor GetFontColor(SKFont font)

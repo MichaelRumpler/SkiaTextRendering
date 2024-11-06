@@ -17,26 +17,26 @@ public class CanvasExtensionsTests
 	#region Access private fields
 
 	FieldInfo? shaperCacheField = null;
-	public ConcurrentDictionary<int, (SKShaper shaper, DateTime cachedAt)> ShaperCache
+	public Dictionary<int, (SKShaper shaper, DateTime cachedAt)> ShaperCache
 	{
 		get
 		{
 			if(shaperCacheField is null)
-				shaperCacheField = typeof(SkiaTextRendering.Extensions.CanvasExtensions).GetField("shaperCache", BindingFlags.NonPublic | BindingFlags.Static);
+				shaperCacheField = typeof(Extensions.CanvasExtensions).GetField("shaperCache", BindingFlags.NonPublic | BindingFlags.Static);
 
-			return (ConcurrentDictionary<int, (SKShaper shaper, DateTime cachedAt)>)shaperCacheField!.GetValue(null)!;
+			return (Dictionary<int, (SKShaper shaper, DateTime cachedAt)>)shaperCacheField!.GetValue(null)!;
 		}
 	}
 
 	FieldInfo? shapeResultCacheField = null;
-	public ConcurrentDictionary<int, (SKShaper.Result shapeResult, DateTime cachedAt)> ShapeResultCache
+	public Dictionary<int, (SKShaper.Result shapeResult, DateTime cachedAt)> ShapeResultCache
 	{
 		get
 		{
 			if (shapeResultCacheField is null)
-				shapeResultCacheField = typeof(SkiaTextRendering.Extensions.CanvasExtensions).GetField("shapeResultCache", BindingFlags.NonPublic | BindingFlags.Static);
+				shapeResultCacheField = typeof(Extensions.CanvasExtensions).GetField("shapeResultCache", BindingFlags.NonPublic | BindingFlags.Static);
 
-			return (ConcurrentDictionary<int, (SKShaper.Result shapeResult, DateTime cachedAt)>)shapeResultCacheField!.GetValue(null)!;
+			return (Dictionary<int, (SKShaper.Result shapeResult, DateTime cachedAt)>)shapeResultCacheField!.GetValue(null)!;
 		}
 	}
 
@@ -53,8 +53,8 @@ public class CanvasExtensionsTests
 	[Fact]
 	public void CacheGetsFilled()
 	{
-		canvas.SetShaperCacheDuration(0);
-		canvas.SetShaperCacheDuration(30_000);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(30_000);
 
 		Assert.Empty(ShaperCache);
 		Assert.Empty(ShapeResultCache);
@@ -64,21 +64,21 @@ public class CanvasExtensionsTests
 		Assert.Single(ShaperCache);
 		Assert.Single(ShapeResultCache);
 
-		canvas.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
 	}
 
 	[Fact]
 	public async Task CacheGetsClearedWhenSettingDurationToZero()
 	{
-		canvas.SetShaperCacheDuration(0);
-		canvas.SetShaperCacheDuration(30_000);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(30_000);
 
 		Extensions.CanvasExtensions.DrawShapedText(canvas, "Hello world!", 0, 0, font, paint);
 
 		Assert.Single(ShaperCache);
 		Assert.Single(ShapeResultCache);
 
-		canvas.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
 		await Task.Delay(10);
 
 		Assert.Empty(ShaperCache);
@@ -88,8 +88,8 @@ public class CanvasExtensionsTests
 	[Fact]
 	public async Task CacheGetsClearedAutomatically()
 	{
-		canvas.SetShaperCacheDuration(0);
-		canvas.SetShaperCacheDuration(30);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(30);
 
 		Extensions.CanvasExtensions.DrawShapedText(canvas, "Hello world!", 0, 0, font, paint);
 
@@ -101,14 +101,14 @@ public class CanvasExtensionsTests
 		Assert.Empty(ShaperCache);
 		Assert.Empty(ShapeResultCache);
 
-		canvas.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
 	}
 
 	[Fact]
 	public void TwoStringsGetBothCached()
 	{
-		canvas.SetShaperCacheDuration(0);
-		canvas.SetShaperCacheDuration(30_000);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(30_000);
 
 		Assert.Empty(ShaperCache);
 		Assert.Empty(ShapeResultCache);
@@ -119,7 +119,7 @@ public class CanvasExtensionsTests
 		Assert.Single(ShaperCache);
 		Assert.Equal(2, ShapeResultCache.Count);
 
-		canvas.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
 	}
 
 	[Fact]
@@ -128,8 +128,8 @@ public class CanvasExtensionsTests
 		var fontFamily2 = SKFontManager.Default.FontFamilies.Skip(1).First();
 		var font2 = SKFontManager.Default.MatchFamily(fontFamily2).ToFont(20);
 
-		canvas.SetShaperCacheDuration(0);
-		canvas.SetShaperCacheDuration(30_000);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(30_000);
 
 		Assert.Empty(ShaperCache);
 		Assert.Empty(ShapeResultCache);
@@ -144,6 +144,6 @@ public class CanvasExtensionsTests
 		Assert.Equal(2, ShaperCache.Count);
 		Assert.Equal(2, ShapeResultCache.Count);
 
-		canvas.SetShaperCacheDuration(0);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(0);
 	}
 }

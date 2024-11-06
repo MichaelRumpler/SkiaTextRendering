@@ -20,6 +20,9 @@ public class DrawShapedTextBenchmarks
 	string ligatures = @"<= >= == === != !== www /\ \/ <~ ~> <| |>";
 	string emojis = "🐈‍⬛🐈👩🏽‍🚒👩🏼‍🎨🙂😉😍😶‍🌫️🤡🥸👧🏾🤢🤮🤬👩🏽‍🦰🎅🏽👨🏽‍🦽";    // 17 glyphs
 
+	string[] digits = new[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+
+	string RandomString => $"{digits[Random.Shared.Next(digits.Length)]} {digits[Random.Shared.Next(digits.Length)]} {digits[Random.Shared.Next(digits.Length)]} {digits[Random.Shared.Next(digits.Length)]}";
 
 	public DrawShapedTextBenchmarks()
 	{
@@ -30,23 +33,39 @@ public class DrawShapedTextBenchmarks
 		cascadiaShaper = new(cascadiaFont.Typeface);
 		emojiShaper = new(emojiFont.Typeface);
 
-		Extensions.CanvasExtensions.SetShaperCacheDuration(null, 30_000);
+		Extensions.CanvasExtensions.SetShaperCacheDuration(null, 3_000);
+		Extensions.CanvasExtensionsConcurrentDict.SetShaperCacheDuration(null, 3_000);
+		Extensions.CanvasExtensionsRuntimeCache.SetShaperCacheDuration(null, 3_000);
 	}
 
-	[Benchmark] public void DrawAscii() => DrawText(ascii, cascadiaFont);
+	//[Benchmark] public void DrawAscii() => DrawText(ascii, cascadiaFont);
 	[Benchmark] public void DrawShapedAscii() => DrawShapedText(ascii, cascadiaFont);
 	[Benchmark] public void DrawAsciiWithShaper() => DrawShapedText(ascii, cascadiaFont, cascadiaShaper);
-	[Benchmark] public void DrawAsciiWithCache() => DrawShapedWithCacheText(ascii, cascadiaFont);
+	[Benchmark] public void DrawAsciiWithConcurrentCache() => DrawShapedWithConcurrentCacheText(ascii, cascadiaFont);
+	[Benchmark] public void DrawAsciiWithDictionaryCache() => DrawShapedWithDictionaryCache(ascii, cascadiaFont);
+	[Benchmark] public void DrawAsciiWithRuntimeCache() => DrawShapedWithRuntimeCache(ascii, cascadiaFont);
 
-	[Benchmark] public void DrawLigatures() => DrawText(ligatures, cascadiaFont);
+	//[Benchmark] public void DrawLigatures() => DrawText(ligatures, cascadiaFont);
 	[Benchmark] public void DrawShapedLigatures() => DrawShapedText(ligatures, cascadiaFont);
 	[Benchmark] public void DrawLigaturesWithShaper() => DrawShapedText(ligatures, cascadiaFont, cascadiaShaper);
-	[Benchmark] public void DrawLigaturesWithCache() => DrawShapedWithCacheText(ligatures, cascadiaFont);
+	[Benchmark] public void DrawLigaturesWithConcurrentCache() => DrawShapedWithConcurrentCacheText(ligatures, cascadiaFont);
+	[Benchmark] public void DrawLigaturesWithDictionaryCache() => DrawShapedWithDictionaryCache(ligatures, cascadiaFont);
+	[Benchmark] public void DrawLigaturesWithRuntimeCache() => DrawShapedWithRuntimeCache(ligatures, cascadiaFont);
 
-	[Benchmark] public void DrawEmojis() => DrawText(emojis, cascadiaFont);
+	//[Benchmark] public void DrawEmojis() => DrawText(emojis, cascadiaFont);
 	[Benchmark] public void DrawShapedEmojis() => DrawShapedText(emojis, emojiFont);
 	[Benchmark] public void DrawEmojisWithShaper() => DrawShapedText(emojis, emojiFont, emojiShaper);
-	[Benchmark] public void DrawEmojisWithCache() => DrawShapedWithCacheText(emojis, emojiFont);
+	[Benchmark] public void DrawEmojisWithConcurrentCache() => DrawShapedWithConcurrentCacheText(emojis, emojiFont);
+	[Benchmark] public void DrawEmojisWithDictionaryCache() => DrawShapedWithDictionaryCache(emojis, emojiFont);
+	[Benchmark] public void DrawEmojisWithRuntimeCache() => DrawShapedWithRuntimeCache(emojis, emojiFont);
+
+	//[Benchmark] public void DrawRandom() => DrawText(RandomString, cascadiaFont);
+	[Benchmark] public void DrawShapedRandom() => DrawShapedText(RandomString, cascadiaFont);
+	[Benchmark] public void DrawRandomWithShaper() => DrawShapedText(RandomString, cascadiaFont, cascadiaShaper);
+	[Benchmark] public void DrawRandomWithConcurrentCache() => DrawShapedWithConcurrentCacheText(RandomString, cascadiaFont);
+	[Benchmark] public void DrawRandomWithDictionaryCache() => DrawShapedWithDictionaryCache(RandomString, cascadiaFont);
+	[Benchmark] public void DrawRandomWithRuntimeCache() => DrawShapedWithRuntimeCache(RandomString, cascadiaFont);
+
 
 	private void DrawText(string str, SKFont font)
 	{
@@ -63,8 +82,18 @@ public class DrawShapedTextBenchmarks
 		canvas.DrawShapedText(shaper, str, 0, 20, font, paint);
 	}
 
-	private void DrawShapedWithCacheText(string str, SKFont font)
+	private void DrawShapedWithConcurrentCacheText(string str, SKFont font)
+	{
+		Extensions.CanvasExtensionsConcurrentDict.DrawShapedText(canvas, str, 0, 20, font, paint);
+	}
+
+	private void DrawShapedWithDictionaryCache(string str, SKFont font)
 	{
 		Extensions.CanvasExtensions.DrawShapedText(canvas, str, 0, 20, font, paint);
+	}
+
+	private void DrawShapedWithRuntimeCache(string str, SKFont font)
+	{
+		Extensions.CanvasExtensionsRuntimeCache.DrawShapedText(canvas, str, 0, 20, font, paint);
 	}
 }

@@ -2,13 +2,13 @@
 using SkiaSharp.HarfBuzz;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace SkiaTextRendering.Extensions;
 
-public static class CanvasExtensions
+public static class CanvasExtensionsConcurrentDict
 {
 	public static void DrawShapedText(this SKCanvas canvas, string text, float x, float y, SKFont font, SKPaint paint) =>
 		DrawShapedText(canvas, text, x, y, SKTextAlign.Left, font, paint);
@@ -85,8 +85,8 @@ public static class CanvasExtensions
 		clearCacheTimer?.Change(0, cacheDuration);
 	}
 
-	private static readonly Dictionary<int, (SKShaper shaper, DateTime cachedAt)> shaperCache = new();
-	private static readonly Dictionary<int, (SKShaper.Result shapeResult, DateTime cachedAt)> shapeResultCache = new();
+	private static readonly ConcurrentDictionary<int, (SKShaper shaper, DateTime cachedAt)> shaperCache = new();
+	private static readonly ConcurrentDictionary<int, (SKShaper.Result shapeResult, DateTime cachedAt)> shapeResultCache = new();
 
 	private static SKShaper GetShaper(SKTypeface typeface)
 	{
@@ -95,15 +95,11 @@ public static class CanvasExtensions
 
 		var key = HashCode.Combine(typeface.FamilyName, typeface.IsBold, typeface.IsItalic);
 
-		SKShaper shaper;
-		lock (shaperCache)
-		{
-			shaper = shaperCache.TryGetValue(key, out var value)
-				? value.shaper
-				: new SKShaper(typeface);
+		var shaper = shaperCache.TryGetValue(key, out var value)
+			? value.shaper
+			: new SKShaper(typeface);
 
-			shaperCache[key] = (shaper, DateTime.Now);      // update timestamp
-		}
+		shaperCache[key] = (shaper, DateTime.Now);      // update timestamp
 		return shaper;
 	}
 
@@ -114,15 +110,11 @@ public static class CanvasExtensions
 
 		var key = HashCode.Combine(font.Typeface.FamilyName, font.Size, font.Typeface.IsBold, font.Typeface.IsItalic, text);
 
-		SKShaper.Result result;
-		lock (shapeResultCache)
-		{
-			result = shapeResultCache.TryGetValue(key, out var value)
-				? value.shapeResult
-				: shaper.Shape(text, 0, 0, font);
+		var result = shapeResultCache.TryGetValue(key, out var value)
+			? value.shapeResult
+			: shaper.Shape(text, 0, 0, font);
 
-			shapeResultCache[key] = (result, DateTime.Now);             // update timestamp
-		}
+		shapeResultCache[key] = (result, DateTime.Now);             // update timestamp
 		return result;
 	}
 
@@ -132,7 +124,7 @@ public static class CanvasExtensions
 	{
 		var outdated = DateTime.Now - TimeSpan.FromMilliseconds(cacheDuration);
 
-		foreach (var kv in shaperCache.AsEnumerable())
+		foreach (var kv in shaperCache.ToArray())
 		{
 			if (kv.Value.cachedAt < outdated)
 			{
@@ -141,13 +133,13 @@ public static class CanvasExtensions
 			}
 		}
 
-		foreach (var kv in shapeResultCache.AsEnumerable())
+		foreach (var kv in shapeResultCache.ToArray())
 		{
 			if (kv.Value.cachedAt < outdated)
 				shapeResultCache.Remove(kv.Key, out var _);
 		}
 
-		if ((shaperCache.Count == 0 && shapeResultCache.Count == 0) || cacheDuration == 0)
+		if ((shaperCache.IsEmpty && shapeResultCache.IsEmpty) || cacheDuration == 0)
 		{
 			clearCacheTimer?.Dispose();
 			clearCacheTimer = null;
